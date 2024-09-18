@@ -1,10 +1,14 @@
 package dizzcode.com.unscramble.ui
 
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import dizzcode.com.unscramble.data.allWords
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.update
 
 class GameViewModel : ViewModel() {
 
@@ -57,6 +61,9 @@ class GameViewModel : ViewModel() {
     // Set of words used in the game
     private var usedWords: MutableSet<String> = mutableSetOf()
 
+    var userGuess by mutableStateOf("")
+        private set
+
     init {
         resetGame()
     }
@@ -85,8 +92,39 @@ class GameViewModel : ViewModel() {
     }
 
 
-    fun resetGame(){
+    private fun resetGame(){
         usedWords.clear()
         _uiState.value = GameUiState(currentScrambledWord = pickRandomWordAndShuffle())
+    }
+
+    fun updateUserGuess(guessedWord: String){
+        userGuess = guessedWord
+    }
+
+    fun checkUserGuess(){
+        if(userGuess.equals(currentWord, ignoreCase = true)){
+
+        } else {
+            // User's guess is wrong, show an error
+            _uiState.update { currentState ->
+                currentState.copy(isGuessedWordWrong = true)
+            }
+
+            /**
+             * Note 03
+             *
+             * Note on copy() method: Use the copy() function to copy an object,
+             * allowing you to alter some of its properties while keeping the rest unchanged.
+             *
+             * Example:
+             *
+             * val jack = User(name = "Jack", age = 1)
+             *
+             * val olderJack = jack.copy(age = 2)
+             */
+        }
+
+        //Reset user guess
+        updateUserGuess("")
     }
 }
